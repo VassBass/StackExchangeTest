@@ -59,7 +59,7 @@ public class DefaultUserRepository implements UserRepository {
                     int code = connection.getResponseCode();
                     if (code != 200) {
                         System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", code);
-                        System.err.println("Please try again later or it's API bug with symbol '#'. Sometimes API thinks it's %23");
+                        System.err.println("Please try again later.");
                     } else {
                         System.err.println("Server returned empty response.");
                     }
