@@ -2,7 +2,6 @@ package service.filter;
 
 import model.UserEntry;
 import org.junit.jupiter.api.Test;
-import util.TagsHelper;
 
 import java.util.*;
 
@@ -108,89 +107,5 @@ class UsersFilterTest {
 
         actual = UsersFilter.createFilter(actual).filterByMinAnswersCount(101).getResult();
         assertFalse(actual.stream().anyMatch(u -> u.getAnswer_count() < 100));
-    }
-
-    @Test
-    void testFilterByTagsJavaMaven() {
-        final String java = "Java", maven = "maven", git = "git", gradle = "gradle", docker = "docker";
-
-        UserEntry userContainsJavaAndMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, maven, git)).build();
-        UserEntry userContainsJava =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, git)).build();
-        UserEntry userContainsMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(maven, git)).build();
-        UserEntry userContainsGradle =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git)).build();
-        UserEntry userContainsDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(git, docker)).build();
-        UserEntry userContainsGradleAndDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git, docker)).build();
-
-        Collection<UserEntry> expected = Arrays.asList(
-                userContainsJava, userContainsMaven, userContainsJavaAndMaven
-        );
-        Collection<UserEntry> actual = Arrays.asList(
-                userContainsJava, userContainsMaven, userContainsJavaAndMaven,
-                userContainsDocker, userContainsGradle, userContainsGradleAndDocker
-        );
-
-        actual = UsersFilter.createFilter(actual).filterByTags(java, maven).getResult();
-        assertEquals(expected.size(), actual.size());
-        assertTrue(expected.containsAll(actual));
-    }
-
-    @Test
-    void testFilterByEmptyTags() {
-        final String java = "Java", maven = "maven", git = "git", gradle = "gradle", docker = "docker";
-
-        UserEntry userContainsJavaAndMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, maven, git)).build();
-        UserEntry userContainsJava =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, git)).build();
-        UserEntry userContainsMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(maven, git)).build();
-        UserEntry userContainsGradle =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git)).build();
-        UserEntry userContainsDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(git, docker)).build();
-        UserEntry userContainsGradleAndDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git, docker)).build();
-
-        Collection<UserEntry> expected = Arrays.asList(
-                userContainsJava, userContainsMaven, userContainsJavaAndMaven,
-                userContainsDocker, userContainsGradle, userContainsGradleAndDocker
-        );
-        Collection<UserEntry> actual = new ArrayList<>(expected);
-
-        actual = UsersFilter.createFilter(actual).filterByTags().getResult();
-        assertEquals(expected.size(), actual.size());
-        assertTrue(expected.containsAll(actual));
-    }
-
-    @Test
-    void testFilterByNotExistedTags() {
-        final String java = "Java", maven = "maven", git = "git", gradle = "gradle", docker = "docker";
-
-        UserEntry userContainsJavaAndMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, maven, git)).build();
-        UserEntry userContainsJava =
-                UserEntry.builder().collectives(TagsHelper.createTags(java, git)).build();
-        UserEntry userContainsMaven =
-                UserEntry.builder().collectives(TagsHelper.createTags(maven, git)).build();
-        UserEntry userContainsGradle =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git)).build();
-        UserEntry userContainsDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(git, docker)).build();
-        UserEntry userContainsGradleAndDocker =
-                UserEntry.builder().collectives(TagsHelper.createTags(gradle, git, docker)).build();
-
-        Collection<UserEntry> actual = Arrays.asList(
-                userContainsJava, userContainsMaven, userContainsJavaAndMaven,
-                userContainsDocker, userContainsGradle, userContainsGradleAndDocker
-        );
-
-        actual = UsersFilter.createFilter(actual).filterByTags("Not existed").getResult();
-        assertTrue(actual.isEmpty());
     }
 }

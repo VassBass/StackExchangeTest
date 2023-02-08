@@ -1,9 +1,12 @@
 package service.filter;
 
 import model.UserEntry;
-import util.TagsHelper;
+import repository.user.UserRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 
 public class UsersFilter {
     private final Collection<UserEntry> buffer;
@@ -35,18 +38,13 @@ public class UsersFilter {
         return this;
     }
 
-    public UsersFilter filterByTags(final String ... tags) {
-        if (tags.length > 0) {
-            buffer.removeIf(entry -> {
-                List<String> currentTags = new ArrayList<>(TagsHelper.getTags(entry)).stream()
-                        .map(String::toLowerCase).toList();
-                return  currentTags.isEmpty() ||
-                        Arrays.stream(tags)
-                                .filter(Objects::nonNull)
-                                .map(String::toLowerCase)
-                                .noneMatch(currentTags::contains);
-            });
+    public UsersFilter filterByTags(UserRepository repository,
+                                    final String ... tags) {
+        for (String tag : tags) {
+            repository.fillTagIfUsersHasIt(tag, buffer.toArray(new UserEntry[0]));
         }
+        buffer.removeIf(entry -> entry.getTags() == null || entry.getTags().isEmpty());
+
         return this;
     }
 
