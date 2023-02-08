@@ -58,7 +58,8 @@ public class DefaultUserRepository implements UserRepository {
                 } else {
                     int code = connection.getResponseCode();
                     if (code != 200) {
-                        System.err.printf("Server returned response code = %s. Please try again later.%n", code);
+                        System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", code);
+                        System.err.println("Please try again later or it's API bug with symbol '#'. Sometimes API thinks it's %23");
                     } else {
                         System.err.println("Server returned empty response.");
                     }
@@ -113,7 +114,7 @@ public class DefaultUserRepository implements UserRepository {
             } else {
                 int code = connection.getResponseCode();
                 if (code != 200) {
-                    System.err.printf("Server returned response code = %s.%nThe last request was ignored", code);
+                    System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", code);
                     System.err.println("Please try again later or it's API bug with symbol '#'. Sometimes API thinks it's %23");
                 } else {
                     System.err.println("Server returned empty response.");

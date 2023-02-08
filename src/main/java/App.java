@@ -6,6 +6,7 @@ import repository.config.DefaultRepositoryConfigHolder;
 import repository.user.UserRepository;
 import service.filter.UsersFilter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -20,12 +21,17 @@ public class App {
         UserRepository userRepository = repositoryFactory.createRepository(UserRepository.class);
 
         Collection<UserEntry> usersByMinReputation = userRepository.getUsersByMinReputation(MIN_REPUTATION);
-        Collection<UserEntry> filteredByLocation = UsersFilter.createFilter(usersByMinReputation)
-                .filterByLocations(LOCATIONS).getResult();
-        Collection<UserEntry> filteredByMinAnswersCount = UsersFilter.createFilter(filteredByLocation)
-                .filterByMinAnswersCount(MIN_ANSWERS_COUNT).getResult();
-        Collection<UserEntry> filteredByTags = UsersFilter.createFilter(filteredByMinAnswersCount)
-                        .filterByTags(userRepository, TAGS).getResult();
+        Collection<UserEntry> filteredByLocation = new ArrayList<>(0);
+        Collection<UserEntry> filteredByMinAnswersCount = new ArrayList<>(0);
+        Collection<UserEntry> filteredByTags = new ArrayList<>(0);
+        if (!usersByMinReputation.isEmpty()) {
+            filteredByLocation = UsersFilter.createFilter(usersByMinReputation)
+                    .filterByLocations(LOCATIONS).getResult();
+            filteredByMinAnswersCount = UsersFilter.createFilter(filteredByLocation)
+                    .filterByMinAnswersCount(MIN_ANSWERS_COUNT).getResult();
+            filteredByTags = UsersFilter.createFilter(filteredByMinAnswersCount)
+                    .filterByTags(userRepository, TAGS).getResult();
+        }
 
         System.err.printf("Max number of pages to search : %s%n", DefaultRepositoryConfigHolder.getInstance().getMaxResponsePages());
         System.err.printf("Found users with min reputation = %s : %s%n", MIN_REPUTATION, usersByMinReputation.size());
