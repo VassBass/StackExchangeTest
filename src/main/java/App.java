@@ -4,6 +4,8 @@ import model.UserEntry;
 import repository.RepositoryFactory;
 import repository.config.DefaultRepositoryConfigHolder;
 import repository.user.UserRepository;
+import service.api.json.GsonJsonMapper;
+import service.api.json.JsonMapper;
 import service.filter.UsersFilter;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class App {
+    private static final String OUTPUT_FILE = "Output.json";
     private static final int MIN_REPUTATION = 223;
     private static final int MIN_ANSWERS_COUNT = 1;
     private static final String[] LOCATIONS = { Location.MOLDOVA, Location.ROMANIA };
@@ -43,6 +46,9 @@ public class App {
         System.err.printf("Of which with location %s : %s%n", Arrays.toString(LOCATIONS), filteredByLocation.size());
         System.err.printf("Of which with min answers count = %s : %s%n", MIN_ANSWERS_COUNT, filteredByMinAnswersCount.size());
         System.err.printf("Of which with tags = %s : %s%n", Arrays.toString(TAGS), filteredByTags.size());
-        filteredByTags.forEach(System.out::println);
+
+        JsonMapper jsonMapper = GsonJsonMapper.getInstance();
+        jsonMapper.objectToJsonFile(filteredByTags, OUTPUT_FILE);
+        System.err.printf("The result was written to %s", OUTPUT_FILE);
     }
 }

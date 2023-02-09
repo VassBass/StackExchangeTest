@@ -24,4 +24,6 @@ public interface JsonMapper {
     boolean putTagsFromAPIJson(@NonNull String json, @NonNull Collection<Tag> tags);
 
     String objectToJson(@NonNull Object o);
+
+    void objectToJsonFile(@NonNull Object o, @NonNull String filePath);
 }

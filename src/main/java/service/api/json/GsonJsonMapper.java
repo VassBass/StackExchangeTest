@@ -8,6 +8,9 @@ import model.CommonWrapper;
 import model.Tag;
 import model.UserEntry;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -53,5 +56,17 @@ public class GsonJsonMapper implements JsonMapper {
     @Override
     public String objectToJson(@NonNull Object o) {
         return gson.toJson(o);
+    }
+
+    @Override
+    public void objectToJsonFile(@NonNull Object o, @NonNull String filePath) {
+        try {
+            Writer writer = new FileWriter(filePath);
+            gson.toJson(o, writer);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

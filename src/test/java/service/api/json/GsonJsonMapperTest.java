@@ -164,4 +164,13 @@ class GsonJsonMapperTest {
 
         assertEquals(json, jsonMapper.objectToJson(tags));
     }
+
+    @Test
+    public void testObjectToJsonFile() {
+        List<Tag> tags = List.of(
+                new Tag(3, "c#"), new Tag(1, ".net")
+        );
+
+        jsonMapper.objectToJsonFile(tags, "testJson.json");
+    }
 }
