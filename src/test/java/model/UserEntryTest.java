@@ -2,21 +2,18 @@ package model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserEntryTest {
 
     @Test
-    void getTags() {
+    void testGetTags() {
         UserEntry userEntry = UserEntry.builder().build();
         assertNotNull(userEntry.getTags());
 
-        List<String> expected = Arrays.asList("java", "c#");
+        List<String> expected = List.of("java", "c#");
         userEntry = UserEntry.builder().tags(expected).build();
 
         Collection<String> actual = userEntry.getTags();
@@ -25,7 +22,7 @@ class UserEntryTest {
     }
 
     @Test
-    void addTag() {
+    void testAddTag() {
         UserEntry userEntry = UserEntry.builder().build();
         String tag = "java";
         userEntry.addTag(tag);
@@ -37,7 +34,26 @@ class UserEntryTest {
     }
 
     @Test
-    void setTags() {
+    void testAddTags() {
+        UserEntry userEntry = UserEntry.builder().build();
+        Collection<String> firstAdd = List.of("java", "maven", "c#");
+        Set<String> expected = new HashSet<>(firstAdd);
+        userEntry.addTags(firstAdd);
+
+        Collection<String> actual = userEntry.getTags();
+        assertEquals(actual.size(), expected.size());
+        assertTrue(expected.containsAll(actual));
+
+        List<String> secondAdd = List.of("c++", "java", "python");
+        expected.addAll(secondAdd);
+        userEntry.addTags(secondAdd);
+
+        assertEquals(actual.size(), expected.size());
+        assertTrue(expected.containsAll(actual));
+    }
+
+    @Test
+    void testSetTags() {
         String tag = "java";
 
         UserEntry userEntry = UserEntry.builder().build();

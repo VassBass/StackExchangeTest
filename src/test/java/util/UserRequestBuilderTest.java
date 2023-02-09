@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserRequestBuilderTest {
 
     @Test
-    void createRequest() {
+    void testCreateRequest() {
         Map<String, String> params = new HashMap<>();
         params.put("pagesize",  "100");
         params.put("order", "desc");

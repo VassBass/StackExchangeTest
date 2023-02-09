@@ -1,40 +1,40 @@
 package repository.user;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import model.CommonWrapper;
+import lombok.NonNull;
 import model.Tag;
 import model.UserEntry;
 import repository.config.RepositoryConfigHolder;
 import service.api.GZIPResponseWorker;
 import service.api.HttpConnection;
 import service.api.ResponseWorker;
-import util.StringHelper;
+import service.api.json.GsonJsonMapper;
+import service.api.json.JsonMapper;
+import util.ParamsBuilder;
 import util.TagsRequestBuilder;
 import util.UserRequestBuilder;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultUserRepository implements UserRepository {
     private final RepositoryConfigHolder configHolder;
-    private final Gson gson;
+    private final JsonMapper jsonMapper = GsonJsonMapper.getInstance();
 
-    public DefaultUserRepository(RepositoryConfigHolder configHolder, Gson gson) {
+    public DefaultUserRepository(RepositoryConfigHolder configHolder) {
         this.configHolder = configHolder;
-        this.gson = gson;
     }
 
     @Override
     public Collection<UserEntry> getUsersByMinReputation(int reputation) {
         Collection<UserEntry> buffer = new ArrayList<>();
 
-        Map<String, String> params = new HashMap<>();
-        params.put("pagesize",  "100");
-        params.put("order", "desc");
-        params.put("min", String.valueOf(reputation));
-        params.put("sort", "reputation");
+        Map<String, String> params = new ParamsBuilder()
+                .setPageSize(100)
+                .setOrder(false)
+                .setSort("reputation", String.valueOf(reputation), null)
+                .build();
+                new HashMap<>();
 
         int page = 1;
         boolean hasMore = true;
@@ -49,20 +49,10 @@ public class DefaultUserRepository implements UserRepository {
                 String json = responseWorker.getResponseJsonContent();
 
                 if (!json.isEmpty()) {
-                    Type dataType = new TypeToken<CommonWrapper<UserEntry>>() {}.getType();
-                    CommonWrapper<UserEntry> usersWrap = gson.fromJson(json, dataType);
-
-                    buffer.addAll(usersWrap.getItems());
-                    hasMore = usersWrap.isHas_more();
+                    hasMore = jsonMapper.putUsersFromAPIJson(json, buffer);
                     params.put("page", String.valueOf(++page));
                 } else {
-                    int code = connection.getResponseCode();
-                    if (code != 200) {
-                        System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", code);
-                        System.err.println("Please try again later.");
-                    } else {
-                        System.err.println("Server returned empty response.");
-                    }
+                    printErrorMessage(connection.getResponseCode());
                     break;
                 }
             } catch (IOException e) {
@@ -73,55 +63,47 @@ public class DefaultUserRepository implements UserRepository {
         return buffer;
     }
 
-    /**
-     * Finds tags by user IDs and, if found, adds them to the list of user tags.
-     * @param tag to check
-     * @param users to check. length <= 100
-     */
-    @Override
-    public void fillTagIfUsersHasIt(String tag, UserEntry ... users) {
-        if (users.length > 100) users = Arrays.copyOf(users, 100);
+    public void fillUserWithTags(@NonNull UserEntry user) {
+        Map<String, String> params = new ParamsBuilder()
+                .setPageSize(100)
+                .setId(user.getUser_id())
+                .setOrder(true)
+                .setSort("name")
+                .build();
 
-        int[] ids = Arrays.stream(users)
-                .filter(Objects::nonNull)
-                .mapToInt(UserEntry::getUser_id)
-                .toArray();
-        Map<String, String> params = new HashMap<>();
-        params.put("ids", StringHelper.intArrayToString(ids));
-        params.put("pagesize", "100");
-        params.put("order", "desc");
-        params.put("min", tag);
-        params.put("max", tag);
-        params.put("sort", "name");
+        int page = 1;
+        boolean hasMore = true;
+        while (hasMore) {
+            if (page > configHolder.getMaxResponsePages()) break;
 
-        String request = TagsRequestBuilder.createRequest(params);
-        System.out.printf("Sending request ... %s%n", request);
-        try {
-            HttpConnection connection = HttpConnection.createConnection(request);
-            ResponseWorker responseWorker = new GZIPResponseWorker(connection);
-            String json = responseWorker.getResponseJsonContent();
+            String request = TagsRequestBuilder.createRequest(params);
+            System.out.printf("Sending request ... %s%n", request);
+            try {
+                HttpConnection connection = HttpConnection.createConnection(request);
+                ResponseWorker responseWorker = new GZIPResponseWorker(connection);
+                String json = responseWorker.getResponseJsonContent();
 
-            if (!json.isEmpty()) {
-                Type dataType = new TypeToken<CommonWrapper<Tag>>() {}.getType();
-                CommonWrapper<Tag> usersWrap = gson.fromJson(json, dataType);
-                Collection<Tag> tags = usersWrap.getItems();
-
-                for (UserEntry user : users) {
-                    if (tags.stream().anyMatch(t -> t.getUser_id() == user.getUser_id())) {
-                        user.addTag(tag);
-                    }
-                }
-            } else {
-                int code = connection.getResponseCode();
-                if (code != 200) {
-                    System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", code);
-                    System.err.println("Please try again later or it's API bug with symbol '#'. Sometimes API thinks it's %23");
+                if (!json.isEmpty()) {
+                    Collection<Tag> buffer = new HashSet<>();
+                    hasMore = jsonMapper.putTagsFromAPIJson(json, buffer);
+                    user.addTags(buffer.stream().map(Tag::getName).collect(Collectors.toSet()));
+                    params.put("page", String.valueOf(++page));
                 } else {
-                    System.err.println("Server returned empty response.");
+                    printErrorMessage(connection.getResponseCode());
+                    break;
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }
+    }
+
+    private void printErrorMessage(int responseCode) {
+        if (responseCode != 200) {
+            System.err.printf("Server returned response code = %s.%nThe last request was ignored%n", responseCode);
+            System.err.println("Please try again later.");
+        } else {
+            System.err.println("Server returned empty response.");
         }
     }
 }

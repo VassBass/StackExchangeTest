@@ -1,7 +1,6 @@
 package service.filter;
 
 import model.UserEntry;
-import repository.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,13 +37,16 @@ public class UsersFilter {
         return this;
     }
 
-    public UsersFilter filterByTags(UserRepository repository,
-                                    final String ... tags) {
-        for (String tag : tags) {
-            repository.fillTagIfUsersHasIt(tag, buffer.toArray(new UserEntry[0]));
+    public UsersFilter filterByTags(final String ... tags) {
+        if (tags.length > 0) {
+            buffer.removeIf(entry -> {
+                Collection<String> userTags = entry.getTags();
+                return userTags == null || userTags.isEmpty() ||
+                        Arrays.stream(tags)
+                                .filter(Objects::nonNull)
+                                .noneMatch(userTags::contains);
+            });
         }
-        buffer.removeIf(entry -> entry.getTags() == null || entry.getTags().isEmpty());
-
         return this;
     }
 

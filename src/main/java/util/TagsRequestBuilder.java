@@ -38,9 +38,9 @@ public class TagsRequestBuilder {
         if (!params.containsKey("ids")) return EMPTY;
 
         StringBuilder builder = new StringBuilder(PREFIX);
+        String ids = params.remove("ids");
 
-        builder.append(params.get("ids")).append("/tags?");
-        params.remove("ids");
+        builder.append(ids).append("/tags?");
         for (Map.Entry<String,String> param : params.entrySet()) {
             builder.append(param.getKey())
                     .append('=')
@@ -49,6 +49,7 @@ public class TagsRequestBuilder {
         }
         builder.append(SUFFIX);
 
+        params.put("ids", ids);
         return builder.toString();
     }
 }

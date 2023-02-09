@@ -24,7 +24,7 @@ class DefaultRepositoryConfigHolderTest {
     }
 
     @Test
-    void getMaxResponsePages() {
+    void testGetMaxResponsePages() {
         assertEquals(1, configHolder.getMaxResponsePages());
     }
 }

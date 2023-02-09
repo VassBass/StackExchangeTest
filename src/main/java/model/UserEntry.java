@@ -2,11 +2,10 @@ package model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
@@ -29,5 +28,11 @@ public class UserEntry {
     public void addTag(String tag) {
         if (tags == null) tags = new HashSet<>();
         tags.add(tag);
+    }
+
+    public void addTags(@NonNull Collection<String> tags) {
+        if (this.tags == null) {
+            this.tags = new HashSet<>(tags);
+        } else this.tags.addAll(tags);
     }
 }

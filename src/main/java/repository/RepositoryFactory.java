@@ -1,6 +1,5 @@
 package repository;
 
-import com.google.gson.Gson;
 import repository.config.DefaultRepositoryConfigHolder;
 import repository.user.DefaultUserRepository;
 import repository.user.UserRepository;
@@ -28,7 +27,7 @@ public class RepositoryFactory {
 
         if (i == null) {
             if (clazz.isAssignableFrom(UserRepository.class))
-                i = (T) new DefaultUserRepository(DefaultRepositoryConfigHolder.getInstance(), new Gson());
+                i = (T) new DefaultUserRepository(DefaultRepositoryConfigHolder.getInstance());
 
             if (i == null) System.err.printf("Can't find implementation for %s%n", clazz.getName());
             else buffer.put(clazz, i);

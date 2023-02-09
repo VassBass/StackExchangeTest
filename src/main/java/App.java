@@ -24,13 +24,18 @@ public class App {
         Collection<UserEntry> filteredByLocation = new ArrayList<>(0);
         Collection<UserEntry> filteredByMinAnswersCount = new ArrayList<>(0);
         Collection<UserEntry> filteredByTags = new ArrayList<>(0);
+
         if (!usersByMinReputation.isEmpty()) {
             filteredByLocation = UsersFilter.createFilter(usersByMinReputation)
                     .filterByLocations(LOCATIONS).getResult();
             filteredByMinAnswersCount = UsersFilter.createFilter(filteredByLocation)
                     .filterByMinAnswersCount(MIN_ANSWERS_COUNT).getResult();
+
+            for (UserEntry user : filteredByMinAnswersCount) {
+                userRepository.fillUserWithTags(user);
+            }
             filteredByTags = UsersFilter.createFilter(filteredByMinAnswersCount)
-                    .filterByTags(userRepository, TAGS).getResult();
+                    .filterByTags(TAGS).getResult();
         }
 
         System.err.printf("Max number of pages to search : %s%n", DefaultRepositoryConfigHolder.getInstance().getMaxResponsePages());

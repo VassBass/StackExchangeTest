@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TagsRequestBuilderTest {
 
     @Test
-    void createRequestWithValidParams() {
+    void testCreateRequestWithValidParams() {
         Map<String, String> params = new HashMap<>();
         params.put("ids", "1;2;3;4;5;6;7;8");
         params.put("pagesize", "100");
@@ -25,7 +25,7 @@ class TagsRequestBuilderTest {
     }
 
     @Test
-    void createRequestWithoutIds() {
+    void testCreateRequestWithoutIds() {
         Map<String, String> params = new HashMap<>();
         params.put("pagesize", "100");
         params.put("order", "desc");
