@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ParamsBuilder {
+    public static final String ASC = "asc";
+    public static final String DESC = "desc";
+
     private final Map<String, String> params;
 
     public ParamsBuilder() {
@@ -21,8 +24,7 @@ public class ParamsBuilder {
         return this;
     }
 
-    public ParamsBuilder setOrder(boolean asc) {
-        String order = asc ? "asc" : "desc";
+    public ParamsBuilder setOrder(String order) {
         params.put("order", order);
         return this;
     }

@@ -4,6 +4,7 @@ import model.UserEntry;
 import repository.RepositoryFactory;
 import repository.config.DefaultRepositoryConfigHolder;
 import repository.user.UserRepository;
+import service.UsersSearcher;
 import service.api.json.GsonJsonMapper;
 import service.api.json.JsonMapper;
 import service.filter.UsersFilter;
@@ -23,32 +24,43 @@ public class App {
         RepositoryFactory repositoryFactory = RepositoryFactory.getInstance();
         UserRepository userRepository = repositoryFactory.createRepository(UserRepository.class);
 
-        Collection<UserEntry> usersByMinReputation = userRepository.getUsersByMinReputation(MIN_REPUTATION);
-        Collection<UserEntry> filteredByLocation = new ArrayList<>(0);
-        Collection<UserEntry> filteredByMinAnswersCount = new ArrayList<>(0);
-        Collection<UserEntry> filteredByTags = new ArrayList<>(0);
+//        Collection<UserEntry> usersByMinReputation = userRepository.getUsersByMinReputation(MIN_REPUTATION);
+//        Collection<UserEntry> filteredByLocation = new ArrayList<>(0);
+//        Collection<UserEntry> filteredByMinAnswersCount = new ArrayList<>(0);
+//        Collection<UserEntry> filteredByTags = new ArrayList<>(0);
+//
+//        if (!usersByMinReputation.isEmpty()) {
+//            filteredByLocation = UsersFilter.createFilter(usersByMinReputation)
+//                    .filterByLocations(LOCATIONS).getResult();
+//            filteredByMinAnswersCount = UsersFilter.createFilter(filteredByLocation)
+//                    .filterByMinAnswersCount(MIN_ANSWERS_COUNT).getResult();
+//
+//            for (UserEntry user : filteredByMinAnswersCount) {
+//                userRepository.fillUserWithTags(user);
+//            }
+//            filteredByTags = UsersFilter.createFilter(filteredByMinAnswersCount)
+//                    .filterByTags(TAGS).getResult();
+//        }
+//
+//        System.err.printf("Max number of pages to search : %s%n", DefaultRepositoryConfigHolder.getInstance().getMaxResponsePages());
+//        System.err.printf("Found users with min reputation = %s : %s%n", MIN_REPUTATION, usersByMinReputation.size());
+//        System.err.printf("Of which with location %s : %s%n", Arrays.toString(LOCATIONS), filteredByLocation.size());
+//        System.err.printf("Of which with min answers count = %s : %s%n", MIN_ANSWERS_COUNT, filteredByMinAnswersCount.size());
+//        System.err.printf("Of which with tags = %s : %s%n", Arrays.toString(TAGS), filteredByTags.size());
+//
+//        JsonMapper jsonMapper = GsonJsonMapper.getInstance();
+//        jsonMapper.objectToJsonFile(filteredByTags, OUTPUT_FILE);
+//        System.err.printf("The result was written to %s", OUTPUT_FILE);
 
-        if (!usersByMinReputation.isEmpty()) {
-            filteredByLocation = UsersFilter.createFilter(usersByMinReputation)
-                    .filterByLocations(LOCATIONS).getResult();
-            filteredByMinAnswersCount = UsersFilter.createFilter(filteredByLocation)
-                    .filterByMinAnswersCount(MIN_ANSWERS_COUNT).getResult();
+        Collection<UserEntry> result = new UsersSearcher(userRepository).options()
+                .setMinReputation(223)
+                .setMinAnswersCount(1)
+                .addLocations(Location.MOLDOVA, Location.ROMANIA)
+                .addTags(Tag.JAVA, Tag.CSharp, Tag.DOCKER, Tag.NET)
+                .search();
 
-            for (UserEntry user : filteredByMinAnswersCount) {
-                userRepository.fillUserWithTags(user);
-            }
-            filteredByTags = UsersFilter.createFilter(filteredByMinAnswersCount)
-                    .filterByTags(TAGS).getResult();
-        }
-
-        System.err.printf("Max number of pages to search : %s%n", DefaultRepositoryConfigHolder.getInstance().getMaxResponsePages());
-        System.err.printf("Found users with min reputation = %s : %s%n", MIN_REPUTATION, usersByMinReputation.size());
-        System.err.printf("Of which with location %s : %s%n", Arrays.toString(LOCATIONS), filteredByLocation.size());
-        System.err.printf("Of which with min answers count = %s : %s%n", MIN_ANSWERS_COUNT, filteredByMinAnswersCount.size());
-        System.err.printf("Of which with tags = %s : %s%n", Arrays.toString(TAGS), filteredByTags.size());
-
+        System.out.println("Count : " + result.size());
         JsonMapper jsonMapper = GsonJsonMapper.getInstance();
-        jsonMapper.objectToJsonFile(filteredByTags, OUTPUT_FILE);
-        System.err.printf("The result was written to %s", OUTPUT_FILE);
+        jsonMapper.objectToJsonFile(result, OUTPUT_FILE);
     }
 }

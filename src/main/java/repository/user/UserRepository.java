@@ -10,8 +10,11 @@ public interface UserRepository {
      * @return Collection of users with min reputation
      *
      * @param reputation min reputation
+     * @param order order of result
+     * @see util.ParamsBuilder#ASC
+     * @see util.ParamsBuilder#DESC
      */
-    Collection<UserEntry> getUsersByMinReputation(int reputation);
+    Collection<UserEntry> getUsersByMinReputation(int reputation, String order);
 
     /**
      * Finds tags by user IDs and, if found, adds them to the list of user tags.

@@ -26,12 +26,12 @@ public class DefaultUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<UserEntry> getUsersByMinReputation(int reputation) {
+    public Collection<UserEntry> getUsersByMinReputation(int reputation, String order) {
         Collection<UserEntry> buffer = new ArrayList<>();
 
         Map<String, String> params = new ParamsBuilder()
                 .setPageSize(100)
-                .setOrder(false)
+                .setOrder(order)
                 .setSort("reputation", String.valueOf(reputation), null)
                 .build();
                 new HashMap<>();
@@ -67,7 +67,7 @@ public class DefaultUserRepository implements UserRepository {
         Map<String, String> params = new ParamsBuilder()
                 .setPageSize(100)
                 .setId(user.getUser_id())
-                .setOrder(true)
+                .setOrder(ParamsBuilder.ASC)
                 .setSort("name")
                 .build();
 
